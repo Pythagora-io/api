@@ -10,6 +10,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GithubStrategy = require('passport-github2').Strategy;
 const dotenv = require('dotenv');
 const app = express();
+const { trackAPICall } = require('./express');
 
 dotenv.config();
 
