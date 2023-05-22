@@ -9,6 +9,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GithubStrategy = require('passport-github2').Strategy;
 const dotenv = require('dotenv');
+const {getJestTestName, getJestTestFromPythagoraData, getJestAuthFunction, getTokensInMessages, getPromptFromFile} = require("./helpers/openai");
+const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("./const/common");
 const app = express();
 
 dotenv.config();
@@ -220,6 +222,61 @@ app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'em
 app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/', failureRedirect: '/login' }));
 app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
 app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: '/', failureRedirect: '/login' }));
+
+app.post('/generate-jest-auth', async (req, res) => {
+    try {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+
+        await getJestAuthFunction(req.body, res);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500); // Set an appropriate error status code
+    }
+});
+app.post('/generate-jest-test', async (req, res) => {
+    try {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+
+        await getJestTestFromPythagoraData(req.body, res);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500); // Set an appropriate error status code
+    }
+});
+
+app.post('/generate-jest-test-name', async (req, res) => {
+    try {
+        if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+
+        await getJestTestName(req.body.test, res, []);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500); // Set an appropriate error status code
+    }
+});
+
+app.post('/check-if-eligible', async (req, res) => {
+    try {
+        if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
+
+        let tokens = getTokensInMessages([
+            {"role": "system", "content": "You are a QA engineer and your main goal is to find ways to break the application you're testing. You are proficient in writing automated integration tests for Node.js API servers.\n" +
+                    "When you respond, you don't say anything except the code - no formatting, no explanation - only code.\n" },
+            {
+                "role": "user",
+                "content": getPromptFromFile('generateJestTest.txt', { test: req.body.test }),
+            },
+        ]);
+
+        let isEligibleForExport = (tokens + MIN_TOKENS_FOR_GPT_RESPONSE < MAX_GPT_MODEL_TOKENS);
+
+        return res.status(200).send(isEligibleForExport);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500); // Set an appropriate error status code
+    }
+});
 
 // Start the server
 app.listen(process.env.PORT, () => {
