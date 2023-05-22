@@ -19,7 +19,7 @@ function getTokensInMessages(messages) {
     return encodedPrompt.text.length;
 }
 
-async function createGPTChatCompletion(messages, res, minTokens = MIN_TOKENS_FOR_GPT_RESPONSE) {
+async function createGPTChatCompletion(messages, apiKey, res, minTokens = MIN_TOKENS_FOR_GPT_RESPONSE) {
     let tokensInMessages = getTokensInMessages(messages);
     if (tokensInMessages + minTokens > MAX_GPT_MODEL_TOKENS) {
         console.error(`Too many tokens in messages: ${tokensInMessages}. Please try a different test.`);
@@ -34,37 +34,37 @@ async function createGPTChatCompletion(messages, res, minTokens = MIN_TOKENS_FOR
     };
 
     try {
-        return await streamGPTCompletion(gptData, res);
+        return await streamGPTCompletion(gptData, apiKey, res);
     } catch (e) {
         console.error('The request to OpenAI API failed. Might be due to GPT being down or due to the too large message. It\'s best if you try another export.')
         process.exit(1);
     }
 }
 
-async function getJestTestFromPythagoraData(reqData, res) {
+async function getJestTestFromPythagoraData(req, res) {
     return await createGPTChatCompletion([
         {"role": "system", "content": "You are a QA engineer and your main goal is to find ways to break the application you're testing. You are proficient in writing automated integration tests for Node.js API servers.\n" +
                 "When you respond, you don't say anything except the code - no formatting, no explanation - only code.\n" },
         {
             "role": "user",
-            "content": getPromptFromFile('generateJestTest.txt', { testData: reqData }),
+            "content": getPromptFromFile('generateJestTest.txt', { testData: req.body }),
         },
-    ], res);
+    ], req.headers.apikey, res);
 }
 
-async function getJestTestName(test, res, usedNames) {
+async function getJestTestName(req, res, usedNames) {
     return await createGPTChatCompletion([
         {"role": "system", "content": "You are a QA engineer and your main goal is to think of good, human readable jest tests file names. You are proficient in writing automated integration tests for Node.js API servers.\n" +
                 "When you respond, you don't say anything except the filename - no formatting, no explanation, no code - only filename.\n" },
         {
             "role": "user",
-            "content": getPromptFromFile('generateJestTestName.txt', { test, usedNames }),
+            "content": getPromptFromFile('generateJestTestName.txt', { test: req.body.test, usedNames }),
         },
-    ], res,200, true);
+    ], req.headers.apikey, res,200, true);
 }
 
-async function getJestAuthFunction(body, res) {
-    let {loginMongoQueriesArray, loginRequestBody, loginEndpointPath} = body;
+async function getJestAuthFunction(req, res) {
+    let {loginMongoQueriesArray, loginRequestBody, loginEndpointPath} = req.body;
     let prompt = getPromptFromFile('generateJestAuth.txt', {
         loginRequestBody,
         loginMongoQueriesArray,
@@ -82,10 +82,10 @@ async function getJestAuthFunction(body, res) {
             "role": "user",
             "content": prompt,
         },
-    ], res);
+    ], req.headers.apikey, res);
 }
 
-async function streamGPTCompletion(data, response) {
+async function streamGPTCompletion(data, apiKey, response) {
     data.stream = true;
 
     return new Promise((resolve, reject) => {
@@ -97,7 +97,7 @@ async function streamGPTCompletion(data, response) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY,
+                    'Authorization': 'Bearer ' + apiKey,
                 },
             },
             (resFromOpenAI) => {

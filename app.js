@@ -171,11 +171,13 @@ app.get('/docs', (req, res) => {
 });
 
 const apiKeyAuth = async (req, res, next) => {
-    const apiKey = req.header('x-api-key');
+    const apiKey = req.headers.apikey;
+    const apiKeyType = req.headers.apikeytype;
     if (!apiKey) {
         return res.status(401).send('Access denied. No API key provided.');
     }
 
+    if(apiKeyType !== 'pythagora') return next();
     try {
         const user = await User.findOne({ apiKey });
         if (!user) {
@@ -224,40 +226,40 @@ app.get('/auth/google/callback', passport.authenticate('google', { successRedire
 app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
 app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: '/', failureRedirect: '/login' }));
 
-app.post('/generate-jest-auth', async (req, res) => {
+app.post('/generate-jest-auth', apiKeyAuth, async (req, res) => {
     try {
         res.writeHead(200, { 'Content-Type': 'application/json' });
 
-        await getJestAuthFunction(req.body, res);
+        await getJestAuthFunction(req, res);
     } catch (error) {
         console.error(error);
         res.sendStatus(500); // Set an appropriate error status code
     }
 });
-app.post('/generate-jest-test', trackAPICall, async (req, res) => {
+app.post('/generate-jest-test', apiKeyAuth, trackAPICall, async (req, res) => {
     try {
         res.writeHead(200, { 'Content-Type': 'application/json' });
 
-        await getJestTestFromPythagoraData(req.body, res);
+        await getJestTestFromPythagoraData(req, res);
     } catch (error) {
         console.error(error);
         res.sendStatus(500); // Set an appropriate error status code
     }
 });
 
-app.post('/generate-jest-test-name', async (req, res) => {
+app.post('/generate-jest-test-name', apiKeyAuth, async (req, res) => {
     try {
         if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
         res.writeHead(200, { 'Content-Type': 'application/json' });
 
-        await getJestTestName(req.body.test, res, []);
+        await getJestTestName(req, res, []);
     } catch (error) {
         console.error(error);
         res.sendStatus(500); // Set an appropriate error status code
     }
 });
 
-app.post('/check-if-eligible', async (req, res) => {
+app.post('/check-if-eligible', apiKeyAuth, async (req, res) => {
     try {
         if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
 
