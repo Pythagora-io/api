@@ -12,6 +12,7 @@ const dotenv = require('dotenv');
 const {getJestTestName, getJestTestFromPythagoraData, getJestAuthFunction, getTokensInMessages, getPromptFromFile} = require("./helpers/openai");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("./const/common");
 const app = express();
+const { trackAPICall } = require('./express');
 
 dotenv.config();
 
