@@ -12,7 +12,7 @@ const dotenv = require('dotenv');
 const {getJestTestName, getJestTestFromPythagoraData, getJestAuthFunction, getTokensInMessages, getPromptFromFile} = require("./helpers/openai");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("./const/common");
 const app = express();
-const { trackAPICall } = require('./express');
+const { trackAPICall } = require('./helpers/express.js');
 
 dotenv.config();
 
@@ -234,7 +234,7 @@ app.post('/generate-jest-auth', async (req, res) => {
         res.sendStatus(500); // Set an appropriate error status code
     }
 });
-app.post('/generate-jest-test', async (req, res) => {
+app.post('/generate-jest-test', trackAPICall, async (req, res) => {
     try {
         res.writeHead(200, { 'Content-Type': 'application/json' });
 

@@ -1,4 +1,4 @@
-let APICall = require('./models/APICall');
+let APICall = require('../models/APICall');
 async function trackAPICall(req, res, next) {
     const apiCall = new APICall({
         apiKeyType: req.headers.apikeytype,
