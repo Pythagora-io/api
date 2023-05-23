@@ -232,30 +232,27 @@ app.post('/generate-jest-auth', apiKeyAuth, async (req, res) => {
 
         await getJestAuthFunction(req, res);
     } catch (error) {
-        console.error(error);
-        res.sendStatus(500); // Set an appropriate error status code
+        res.status(500).write('pythagora_end');
+        res.end(error.message);
     }
 });
 app.post('/generate-jest-test', apiKeyAuth, trackAPICall, async (req, res) => {
     try {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-
         await getJestTestFromPythagoraData(req, res);
     } catch (error) {
-        console.error(error);
-        res.sendStatus(500); // Set an appropriate error status code
+        res.status(500).write('pythagora_end');
+        res.end(error.message);
     }
 });
 
 app.post('/generate-jest-test-name', apiKeyAuth, async (req, res) => {
     try {
         if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
-        res.writeHead(200, { 'Content-Type': 'application/json' });
 
         await getJestTestName(req, res, []);
     } catch (error) {
-        console.error(error);
-        res.sendStatus(500); // Set an appropriate error status code
+        res.status(500).write('pythagora_end');
+        res.end(error.message);
     }
 });
 

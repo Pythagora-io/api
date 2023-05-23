@@ -23,10 +23,7 @@ function getTokensInMessages(messages) {
 
 async function createGPTChatCompletion(messages, apiKey, res, minTokens = MIN_TOKENS_FOR_GPT_RESPONSE) {
     let tokensInMessages = getTokensInMessages(messages);
-    if (tokensInMessages + minTokens > MAX_GPT_MODEL_TOKENS) {
-        console.error(`Too many tokens in messages: ${tokensInMessages}. Please try a different test.`);
-        process.exit(1);
-    }
+    if (tokensInMessages + minTokens > MAX_GPT_MODEL_TOKENS) throw new Error(`Too many tokens in messages: ${tokensInMessages}. Please try a different test.`)
 
     let gptData = {
         model: "gpt-4",
