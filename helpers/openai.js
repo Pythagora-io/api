@@ -5,6 +5,8 @@ const GPT3Tokenizer = require("gpt3-tokenizer");
 const {insertVariablesInText} = require("../utils/common");
 const https = require("https");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
+const { Readable } = require('stream');
+
 let openai;
 
 function getPromptFromFile(fileName, variables) {
@@ -101,7 +103,45 @@ async function streamGPTCompletion(data, apiKey, response) {
                 },
             },
             (resFromOpenAI) => {
-                resFromOpenAI.pipe(response);
+                let gptResponse = '';
+
+                // Create a readable stream to capture the response data
+                const readableStream = new Readable({
+                    read() {
+                        // This is an empty implementation of the _read() method
+                    },
+                });
+
+                resFromOpenAI.on('data', (chunk) => {
+                    try {
+                        readableStream.push(chunk);
+                        let stringified = chunk.toString();
+                        try {
+                            let json = JSON.parse(stringified);
+                            if (json.error) gptResponse = json.error;
+                            return;
+                        } catch (e) {}
+                        let receivedMessages = extractGPTMessageFromStreamData(stringified);
+                        receivedMessages.forEach(rm => {
+                            let content = _.get(rm, 'choices.0.delta.content');
+                            if (content) {
+                                gptResponse += content;
+                                process.stdout.write(content);
+                            }
+                        });
+
+                    } catch (e) {}
+                });
+
+                resFromOpenAI.on('end', () => {
+                    // Mark the readable stream as ended
+                    readableStream.push('pythagora_end');
+                    readableStream.push(gptResponse);
+
+                    response.end(gptResponse);
+                });
+
+                readableStream.pipe(response);
             }
         );
 
