@@ -7,8 +7,6 @@ const https = require("https");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
 const { Readable } = require('stream');
 
-let openai;
-
 function getPromptFromFile(fileName, variables) {
     const fileContent = fs.readFileSync(path.join(__dirname, `../prompts/${fileName}`), 'utf8');
     return insertVariablesInText(fileContent, variables);

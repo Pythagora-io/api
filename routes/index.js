@@ -1,0 +1,43 @@
+const express = require('express');
+const router = express.Router();
+
+
+router.get('/', (req, res) => {
+    res.status(200).json({username: req.user ? req.user.username : undefined});
+});
+
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return res.status(400).json(err);
+        }
+        if (!user) {
+            return res.status(400).json({errors: {email: [info.message]}});
+        }
+        req.login(user, (err) => {
+            if (err) {
+                return res.status(400).send(err);
+            }
+            res.status(200).json({ message: 'Registration successful' });
+        });
+    })(req, res, next);
+});
+
+router.post('/register', async (req, res) => {
+    try {
+        if (!req.body.username || !req.body.password || !req.body.email) return res.status(400).send('You need to provide username, password and email!');
+        let user = await User.create({ username: req.body.username, password: req.body.password, email: req.body.email });
+
+        // Create session for the user
+        req.login(user, (err) => {
+            if (err) {
+                return res.status(400).send(err);
+            }
+            res.status(200).json({ message: 'Registration successful' });
+        });
+    } catch (err) {
+        res.status(500).send('Error registering user');
+    }
+});
+
+module.exports = router;
