@@ -8,7 +8,7 @@
 <h3 align="center">Pythagora API server</h3>
 <br>
 <p>This is Pythagora API server repository which is currently handling exporting of Pythagora tests to Jest. It will be updated with future features that require LLMs.</p>
-<p>If you want to see Pythagora npm package click <a href="https://discord.gg/npC5TAfj6e" target="_blank">here.</a></p>
+<p>If you want to see Pythagora npm package click <a href="https://github.com/Pythagora-io/pythagora" target="_blank">here.</a></p>
 
 <h1>⚙️ Installation</h1>
 First install all npm dependencies
@@ -24,7 +24,12 @@ node app.js
 ```
 <br><br>
 <h1>▶️ Usage</h1>
-Server should be now running on <b>http://localhost:3000</b> which means you can start exporting Pythagora tests to Jest. Make sure to change 
+Server should be now running on <b>http://localhost:3000</b> which means you can start exporting Pythagora tests to Jest. If you are using this in combination with <a href="https://github.com/Pythagora-io/pythagora" target="_blank">Pythagora npm package</a> make sure that inside <b>/src/helpers/api.js</b> you change:
+
+- protocol (if needed)
+- hostname
+- port
+
 <br><br>
 <h1>🗄️ Folder structure </h1>
 
