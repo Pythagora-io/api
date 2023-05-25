@@ -16,22 +16,10 @@ const apiRoutes = require('./routes/api');
 const app = express();
 dotenv.config();
 
+
 mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Failed to connect to MongoDB:', err));
-
-const UserSchema = new mongoose.Schema({
-    username: { type: String, unique: true },
-    password: String,
-    email: String,
-    apiKey: { type: String, default: v4() },
-    usage: { type: Number, default: 0 },
-    role: { type: String, enum: ['free', 'premium', 'enterprise'], default: 'free' },
-    googleId: String,
-    githubId: String
-});
-
-const User = mongoose.model('User', UserSchema);
 
 // In-memory storage
 const users = [];

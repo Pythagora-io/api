@@ -9,6 +9,7 @@ const {
 } = require("../helpers/openai");
 const {trackAPICall} = require("../helpers/express");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
+const User = require('../models/user');
 
 const apiKeyAuth = async (req, res, next) => {
     const apiKey = req.headers.apikey;
