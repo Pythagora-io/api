@@ -25,6 +25,7 @@ const apiKeyAuth = async (req, res, next) => {
             return res.status(401).send('Access denied. Invalid API key.');
         }
 
+        req.headers.apikey = process.env.OPENAI_API_KEY;
         req.user = user;
         next();
     } catch (err) {
