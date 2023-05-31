@@ -1,0 +1,20 @@
+I will give you the node.js code for a function `{{{functionName}}}` along with other functions that are related to it, and you need to write as many automated unit tests as you can think of in Jest for `{{{functionName}}}`.
+
+If you need to require any of the files, you can require them as if they were in the same directory as the file you are writing the tests for.
+
+Make sure to wrap then entire code in `describe` block because the tests you return will be merged with other tests and put into a single file.
+
+If you need to initialize a class, make sure that you check how the constructor looks like so that you can initilize it properly.
+
+Here is the code for the function `{{{functionName}}}`:
+```javascript
+{{{functionCode}}}
+```
+
+{{#each relatedCode}}
+The file `{{{this.fileName}}}` contains the following code:
+```javascript
+{{{this.code}}}
+```
+
+{{/each}}
