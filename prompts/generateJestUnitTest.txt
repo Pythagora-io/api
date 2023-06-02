@@ -1,6 +1,12 @@
 I will give you the node.js code for a function `{{{functionName}}}` along with other functions that are related to it, and you need to write as many automated unit tests as you can think of in Jest for `{{{functionName}}}`.
 
-If you need to require any of the files, you can require them as if they were in the same directory as the file you are writing the tests for.
+When you need to require `{{{functionName}}}`, you can require it with `const { {{{functionName}}} } = require('{{{pathRelativeToTest}}}')`. Here are paths to each of the other files (in case you need to require them):
+```
+{{#each relatedCode}}
+require('{{{this.fileName}}}') -> require('{{{this.pathRelativeToTest}}}');
+{{/each}}
+```
+You don't need to require each of these files but only the ones that you need.
 
 Make sure to wrap then entire code in `describe` block because the tests you return will be merged with other tests and put into a single file.
 
@@ -16,5 +22,4 @@ The file `{{{this.fileName}}}` contains the following code:
 ```javascript
 {{{this.code}}}
 ```
-
 {{/each}}
