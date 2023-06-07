@@ -19,7 +19,7 @@ getAuthToken function needs to do multiple things. Let's break it down step by s
 The data from which you need to create getAuthToken is:
 1. Mongo queries made during the execution of the login endpoint
 ```json
-{{loginMongoQueriesArray}}
+{{{loginMongoQueriesArray}}}
 ```
 
 Here are the details about the parameters of objects inside the array of mongo queries:
@@ -38,11 +38,11 @@ const { ObjectId } = require("mongodb");
 let someObjectId = new ObjectId(id);
 ```
 
-2. The login URL endpoint path is `{{loginEndpointPath}}`
+2. The login URL endpoint path is `{{{loginEndpointPath}}}`
 
 3. Data that's sent in the request body during the login is:
 ```json
-{{loginRequestBody}}
+{{{loginRequestBody}}}
 ```
 
 You have to always require `cookie` and `axios`. Here is a template for the getAuthToken function:

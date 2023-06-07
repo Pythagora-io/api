@@ -6,10 +6,12 @@ const {insertVariablesInText} = require("../utils/common");
 const https = require("https");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
 const { Readable } = require('stream');
+const Handlebars = require('handlebars');
 
 function getPromptFromFile(fileName, variables) {
     const fileContent = fs.readFileSync(path.join(__dirname, `../prompts/${fileName}`), 'utf8');
-    return insertVariablesInText(fileContent, variables);
+    const template = Handlebars.compile(fileContent);
+    return template(variables);
 }
 
 function getTokensInMessages(messages) {
@@ -58,6 +60,27 @@ async function getJestTestName(req, res, usedNames) {
             "content": getPromptFromFile('generateJestTestName.txt', { test: req.body.test, usedNames }),
         },
     ], req.headers.apikey, res,200, true);
+}
+
+function getGPTMessages(req, type) {
+    if (type === 'unit') {
+        return [
+            {"role": "system", "content": "You are a QA engineer and your main goal is to find ways to break the application you're testing. You are proficient in writing automated tests for Node.js apps.\n" +
+                    "When you respond, you don't say anything except the code - no formatting, no explanation - only code." },
+            {
+                "role": "user",
+                "content": getPromptFromFile('generateJestUnitTest.txt', req.body),
+            },
+        ]
+    }
+}
+
+async function getJestUnitTests(req, res, usedNames) {
+    req.body.relatedCode = req.body.relatedCode.map(code => {
+        code.fileName = code.fileName.substring(code.fileName.lastIndexOf('/') + 1);
+        return code;
+    })
+    return await createGPTChatCompletion(getGPTMessages(req, 'unit'), req.headers.apikey, res,200, true);
 }
 
 async function getJestAuthFunction(req, res) {
@@ -167,5 +190,7 @@ module.exports = {
     getJestTestName,
     getJestAuthFunction,
     getTokensInMessages,
-    getPromptFromFile
+    getPromptFromFile,
+    getJestUnitTests,
+    getGPTMessages
 }
