@@ -5,7 +5,8 @@ const {
     getJestTestFromPythagoraData,
     getJestTestName,
     getTokensInMessages,
-    getPromptFromFile
+    getPromptFromFile,
+    getJestUnitTests
 } = require("../helpers/openai");
 const {trackAPICall} = require("../helpers/express");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
@@ -59,6 +60,15 @@ router.post('/generate-negative-tests', apiKeyAuth, async (req, res) => {
     // Process the results (implementation not provided)
 
     res.send('API requests made');
+});
+
+router.post('/generate-unit-tests', apiKeyAuth, async (req, res) => {
+    try {
+        await getJestUnitTests(req, res);
+    } catch (error) {
+        res.status(500).write('pythagora_end');
+        res.end(error.message);
+    }
 });
 
 router.post('/generate-jest-auth', apiKeyAuth, async (req, res) => {

@@ -136,7 +136,7 @@ When you make an API request, make sure to use `axios` to the URL `http://localh
 
 Here is the request data in a JSON format:
 ```json
-{{testData}}
+{{{testData}}}
 ```
 Here are a couple of additional points to have in mind:
 When you create names for your tests you make sure that they are very intuitive and in a human-readable form.

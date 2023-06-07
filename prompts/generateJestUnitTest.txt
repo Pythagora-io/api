@@ -1,0 +1,64 @@
+I will give you the node.js code for a function `{{{functionName}}}` along with other functions that are related to it, and you need to write as many automated unit tests as you can think of in Jest for `{{{functionName}}}`.
+
+{{#if classParent}}
+`{{{functionName}}}` is a method of a class `{{{classParent}}}` so, to require it, you need to initialize the class first. For example:
+```
+    {{#if exportedAsObject}}
+        {{#if isES6Syntax}}
+import { {{{classParent}}} } from '{{{pathRelativeToTest}}}';
+        {{else}}
+const { {{{classParent}}} } = require('{{{pathRelativeToTest}}}');
+        {{/if}}
+    {{else}}
+        {{#if isES6Syntax}}
+import {{{classParent}}} from '{{{pathRelativeToTest}}}';
+        {{else}}
+const {{{classParent}}} = require('{{{pathRelativeToTest}}}');
+        {{/if}}
+    {{/if}}
+{{{classParent}}} = new {{{classParent}}}(<REQUIRED_ARGUMENTS>);
+```
+Then, you can initialize the method with `const {{{functionNameRequire}}} = {{{classParent}}}.{{{functionName}}};`. Also, make sure that you pass all required arguments (`<REQUIRED_ARGUMENTS>`) while initializing the class.
+{{else}}
+    {{#if exportedAsObject}}
+        {{#if isES6Syntax}}
+When you need to import `{{{functionName}}}`, you can import it with `import { {{{functionNameRequire}}} } from '{{{pathRelativeToTest}}}'`.
+        {{else}}
+When you need to require `{{{functionName}}}`, you can require it with `const { {{{functionNameRequire}}} } = require('{{{pathRelativeToTest}}}')`.
+        {{/if}}
+    {{else}}
+        {{#if isES6Syntax}}
+When you need to import `{{{functionName}}}`, you can import it with `import {{{functionNameRequire}}} from '{{{pathRelativeToTest}}}'`.
+        {{else}}
+When you need to require `{{{functionName}}}`, you can require it with `const {{{functionNameRequire}}} = require('{{{pathRelativeToTest}}}')`.
+        {{/if}}
+    {{/if}}
+{{/if}}
+
+Here are paths to each of the other files (in case you need to require them):
+```
+{{#each relatedCode}}
+    {{#if ../isES6Syntax}}
+import ... from '{{{this.fileName}}}' -> import ... from '{{{this.pathRelativeToTest}}}';
+    {{else}}
+require('{{{this.fileName}}}') -> require('{{{this.pathRelativeToTest}}}');
+    {{/if}}
+{{/each}}
+```
+You don't need to require each of these files but only the ones that you need.
+
+Make sure to wrap then entire code in `describe` block because the tests you return will be merged with other tests and put into a single file.
+
+If you need to initialize a class, make sure that you check how the constructor looks like so that you can initilize it properly.
+
+Here is the code for the function `{{{functionName}}}`:
+```javascript
+{{{functionCode}}}
+```
+
+{{#each relatedCode}}
+The file `{{{this.fileName}}}` contains the following code:
+```javascript
+{{{this.code}}}
+```
+{{/each}}
