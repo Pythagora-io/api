@@ -136,7 +136,7 @@ async function streamGPTCompletion(data, apiKey, response) {
                         let stringified = chunk.toString();
                         try {
                             let json = JSON.parse(stringified);
-                            if (json.error) gptResponse = json.error;
+                            if (json.error || json.message) gptResponse = json;
                             return;
                         } catch (e) {}
                         let receivedMessages = extractGPTMessageFromStreamData(stringified);
@@ -152,11 +152,10 @@ async function streamGPTCompletion(data, apiKey, response) {
                 });
 
                 resFromOpenAI.on('end', () => {
-                    // Mark the readable stream as ended
-                    readableStream.push('pythagora_end');
-                    readableStream.push(gptResponse);
-
-                    response.end(gptResponse);
+                    let resEnd = typeof gptResponse === 'string' ||
+                    gptResponse instanceof Buffer ||
+                    gptResponse instanceof Uint8Array ? gptResponse : JSON.stringify(gptResponse);
+                    response.end('pythagora_end:' + resEnd);
                 });
 
                 readableStream.pipe(response);
