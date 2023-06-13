@@ -18,19 +18,19 @@ const {{{classParent}}} = require('{{{pathRelativeToTest}}}');
     {{/if}}
 {{{classParent}}} = new {{{classParent}}}(<REQUIRED_ARGUMENTS>);
 ```
-Then, you can initialize the method with `const {{{functionNameRequire}}} = {{{classParent}}}.{{{functionName}}};`. Also, make sure that you pass all required arguments (`<REQUIRED_ARGUMENTS>`) while initializing the class.
+Then, you can initialize the method with `const {{{functionName}}} = {{{classParent}}}.{{{functionName}}};`. Also, make sure that you pass all required arguments (`<REQUIRED_ARGUMENTS>`) while initializing the class.
 {{else}}
     {{#if exportedAsObject}}
         {{#if isES6Syntax}}
-When you need to import `{{{functionName}}}`, you can import it with `import { {{{functionNameRequire}}} } from '{{{pathRelativeToTest}}}'`.
+When you need to import `{{{functionName}}}`, you can import it with `import { {{{functionName}}} } from '{{{pathRelativeToTest}}}'`.
         {{else}}
-When you need to require `{{{functionName}}}`, you can require it with `const { {{{functionNameRequire}}} } = require('{{{pathRelativeToTest}}}')`.
+When you need to require `{{{functionName}}}`, you can require it with `const { {{{functionName}}} } = require('{{{pathRelativeToTest}}}')`.
         {{/if}}
     {{else}}
         {{#if isES6Syntax}}
-When you need to import `{{{functionName}}}`, you can import it with `import {{{functionNameRequire}}} from '{{{pathRelativeToTest}}}'`.
+When you need to import `{{{functionName}}}`, you can import it with `import {{{functionName}}} from '{{{pathRelativeToTest}}}'`.
         {{else}}
-When you need to require `{{{functionName}}}`, you can require it with `const {{{functionNameRequire}}} = require('{{{pathRelativeToTest}}}')`.
+When you need to require `{{{functionName}}}`, you can require it with `const {{{functionName}}} = require('{{{pathRelativeToTest}}}')`.
         {{/if}}
     {{/if}}
 {{/if}}
