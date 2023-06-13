@@ -121,29 +121,21 @@ async function streamGPTCompletion(data, apiKey, response) {
                 },
             },
             (resFromOpenAI) => {
-                let gptResponse = '';
-
-                // Create a readable stream to capture the response data
-                const readableStream = new Readable({
-                    read() {
-                        // This is an empty implementation of the _read() method
-                    },
-                });
-
                 resFromOpenAI.on('data', (chunk) => {
                     try {
-                        readableStream.push(chunk);
                         let stringified = chunk.toString();
                         try {
                             let json = JSON.parse(stringified);
-                            if (json.error || json.message) gptResponse = json;
-                            return;
+                            if (json.error || json.message) {
+                                response.write(JSON.stringify(json));
+                                return;
+                            }
                         } catch (e) {}
                         let receivedMessages = extractGPTMessageFromStreamData(stringified);
                         receivedMessages.forEach(rm => {
                             let content = _.get(rm, 'choices.0.delta.content');
                             if (content) {
-                                gptResponse += content;
+                                response.write(content);
                                 process.stdout.write(content);
                             }
                         });
@@ -152,13 +144,8 @@ async function streamGPTCompletion(data, apiKey, response) {
                 });
 
                 resFromOpenAI.on('end', () => {
-                    let resEnd = typeof gptResponse === 'string' ||
-                    gptResponse instanceof Buffer ||
-                    gptResponse instanceof Uint8Array ? gptResponse : JSON.stringify(gptResponse);
-                    response.end('pythagora_end:' + resEnd);
+                    response.end();
                 });
-
-                readableStream.pipe(response);
             }
         );
 
