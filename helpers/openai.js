@@ -21,9 +21,12 @@ function getTokensInMessages(messages) {
     return encodedPrompt.text.length;
 }
 
-async function createGPTChatCompletion(messages, apiKey, res, minTokens = MIN_TOKENS_FOR_GPT_RESPONSE) {
+async function createGPTChatCompletion(messages, req, res, minTokens = MIN_TOKENS_FOR_GPT_RESPONSE) {
+    const apiKey = req.headers.apikey;
     let tokensInMessages = getTokensInMessages(messages);
     if (tokensInMessages + minTokens > MAX_GPT_MODEL_TOKENS) throw new Error(`Too many tokens in messages: ${tokensInMessages}. Please try a different test.`)
+
+    if (req.user) await req.user.updateUsage(tokensInMessages);
 
     let gptData = {
         model: "gpt-4",
@@ -48,7 +51,7 @@ async function getJestTestFromPythagoraData(req, res) {
             "role": "user",
             "content": getPromptFromFile('generateJestTest.txt', { testData: req.body }),
         },
-    ], req.headers.apikey, res);
+    ], req, res);
 }
 
 async function getJestTestName(req, res, usedNames) {
@@ -59,7 +62,7 @@ async function getJestTestName(req, res, usedNames) {
             "role": "user",
             "content": getPromptFromFile('generateJestTestName.txt', { test: req.body.test, usedNames }),
         },
-    ], req.headers.apikey, res,200, true);
+    ], req, res,200, true);
 }
 
 function getGPTMessages(req, type) {
@@ -80,7 +83,7 @@ async function getJestUnitTests(req, res, usedNames) {
         code.fileName = code.fileName.substring(code.fileName.lastIndexOf('/') + 1);
         return code;
     })
-    return await createGPTChatCompletion(getGPTMessages(req, 'unit'), req.headers.apikey, res,200, true);
+    return await createGPTChatCompletion(getGPTMessages(req, 'unit'), req, res,200);
 }
 
 async function getJestAuthFunction(req, res) {
@@ -102,7 +105,7 @@ async function getJestAuthFunction(req, res) {
             "role": "user",
             "content": prompt,
         },
-    ], req.headers.apikey, res);
+    ], req, res);
 }
 
 async function streamGPTCompletion(data, apiKey, response) {

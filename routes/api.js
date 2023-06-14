@@ -12,7 +12,7 @@ const {trackAPICall} = require("../helpers/express");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
 const User = require("../models/User");
 
-const apiKeyAuth = async (req, res, next) => {
+async function apiKeyAuth (req, res, next) {
     const apiKey = req.headers.apikey;
     const apiKeyType = req.headers.apikeytype;
     if (!apiKey) {
@@ -26,13 +26,21 @@ const apiKeyAuth = async (req, res, next) => {
             return res.status(401).send('Access denied. Invalid API key.');
         }
 
+        if (!user.maxRequests && user.maxRequests !== 0 && !user.maxTokens && user.maxTokens !== 0) user.getRoleProperties();
+
+        const usage = user.getUsage();
+
+        if (user.maxTokens && user.maxTokens !== 0 && user.maxTokens <= usage.tokens) return res.status(400).send('Reached tokens limit. If you need more tokens let us know on hi@pythagora.ai');
+
+        if (user.maxRequests && user.maxRequests !== 0 && user.maxRequests <= usage.requests) return res.status(400).send('Reached requests limit. If you need more requests let us know on hi@pythagora.ai');
+
         req.headers.apikey = process.env.OPENAI_API_KEY;
         req.user = user;
         next();
     } catch (err) {
         res.status(500).send('Error validating API key.');
     }
-};
+}
 
 
 router.post('/generate-negative-tests', apiKeyAuth, async (req, res) => {

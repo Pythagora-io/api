@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User.js')
 
 
 router.get('/', (req, res) => {
@@ -26,7 +27,10 @@ router.post('/login', (req, res, next) => {
 router.post('/register', async (req, res) => {
     try {
         if (!req.body.username || !req.body.password || !req.body.email) return res.status(400).send('You need to provide username, password and email!');
-        let user = await User.create({ username: req.body.username, password: req.body.password, email: req.body.email });
+
+        let user = new User({ username: req.body.username, password: req.body.password, email: req.body.email, role: req.body.role });
+        user.setRoleProperties();
+        await user.save();
 
         // Create session for the user
         req.login(user, (err) => {
