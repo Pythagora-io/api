@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
     username: { type: String, unique: true },
     password: String,
     email: { type: String, unique: true },
-    apiKey: { type: String, default: v4() },
+    apiKey: { type: String, default: () => v4() },
     usage: { type: Array, default: [] },
     maxRequests: { type: Number },
     maxTokens: { type: Number },
