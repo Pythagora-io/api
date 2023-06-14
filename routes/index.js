@@ -19,13 +19,15 @@ router.post('/login', (req, res, next) => {
             if (err) {
                 return res.status(400).send(err);
             }
-            res.status(200).json({ message: 'Registration successful' });
+            res.status(200).json({ message: 'Login successful' });
         });
     })(req, res, next);
 });
 
 router.post('/register', async (req, res) => {
     try {
+        if (req.body.apiKey !== process.env.API_KEY) return res.status(403).send('Forbidden. Need to send apiKey inside body.');
+
         if (!req.body.username || !req.body.password || !req.body.email) return res.status(400).send('You need to provide username, password and email!');
 
         let user = new User({ username: req.body.username, password: req.body.password, email: req.body.email, role: req.body.role });
@@ -40,7 +42,7 @@ router.post('/register', async (req, res) => {
             res.status(200).json({ message: 'Registration successful', apiKey: user.apiKey });
         });
     } catch (err) {
-        res.status(500).send('Error registering user');
+        res.status(500).send('Error registering user: ', err);
     }
 });
 

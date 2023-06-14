@@ -12,6 +12,7 @@ const dotenv = require('dotenv');
 const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');
 const apiRoutes = require('./routes/api');
+const User = require('./models/User.js');
 
 const app = express();
 dotenv.config();

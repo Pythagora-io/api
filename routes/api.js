@@ -38,7 +38,7 @@ async function apiKeyAuth (req, res, next) {
         req.user = user;
         next();
     } catch (err) {
-        res.status(500).send('Error validating API key.');
+        res.status(500).send('Error validating API key: ', err);
     }
 }
 
