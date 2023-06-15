@@ -38,8 +38,8 @@ async function createGPTChatCompletion(messages, req, res, minTokens = MIN_TOKEN
     try {
         return await streamGPTCompletion(gptData, apiKey, res);
     } catch (e) {
-        console.error('The request to OpenAI API failed. Might be due to GPT being down or due to the too large message. It\'s best if you try another export.')
-        process.exit(1);
+        console.error('The request to OpenAI API failed. Might be due to GPT being down or due to the too large message. It\'s best if you try another export.');
+        console.error(e);
     }
 }
 
