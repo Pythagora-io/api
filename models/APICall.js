@@ -14,6 +14,10 @@ const APICallSchema = new Schema({
         type: String,
         trim: true
     },
+    endpoint: {
+        type: String,
+        trim: true
+    },
     createdAt: {
         type: Date,
         default: Date.now

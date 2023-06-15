@@ -34,6 +34,7 @@ async function apiKeyAuth (req, res, next) {
 
         if (user.maxRequests && user.maxRequests !== 0 && user.maxRequests <= usage.requests) return res.status(400).send('Reached requests limit. If you need more requests let us know on hi@pythagora.ai');
 
+        req.headers.pythagoraapikey = req.headers.apikey;
         req.headers.apikey = process.env.OPENAI_API_KEY;
         req.user = user;
         next();
@@ -43,7 +44,7 @@ async function apiKeyAuth (req, res, next) {
 }
 
 
-router.post('/generate-negative-tests', apiKeyAuth, async (req, res) => {
+router.post('/generate-negative-tests', apiKeyAuth, trackAPICall, async (req, res) => {
     const user = req.user;
     if (!user) {
         res.status(401).send('Unauthorized');
@@ -70,7 +71,7 @@ router.post('/generate-negative-tests', apiKeyAuth, async (req, res) => {
     res.send('API requests made');
 });
 
-router.post('/generate-unit-tests', apiKeyAuth, async (req, res) => {
+router.post('/generate-unit-tests', apiKeyAuth, trackAPICall, async (req, res) => {
     try {
         await getJestUnitTests(req, res);
     } catch (error) {
@@ -79,7 +80,7 @@ router.post('/generate-unit-tests', apiKeyAuth, async (req, res) => {
     }
 });
 
-router.post('/generate-jest-auth', apiKeyAuth, async (req, res) => {
+router.post('/generate-jest-auth', apiKeyAuth, trackAPICall, async (req, res) => {
     try {
         await getJestAuthFunction(req, res);
     } catch (error) {
@@ -97,7 +98,7 @@ router.post('/generate-jest-test', apiKeyAuth, trackAPICall, async (req, res) =>
     }
 });
 
-router.post('/generate-jest-test-name', apiKeyAuth, async (req, res) => {
+router.post('/generate-jest-test-name', apiKeyAuth, trackAPICall, async (req, res) => {
     try {
         if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
 
@@ -108,7 +109,7 @@ router.post('/generate-jest-test-name', apiKeyAuth, async (req, res) => {
     }
 });
 
-router.post('/check-if-eligible', apiKeyAuth, async (req, res) => {
+router.post('/check-if-eligible', apiKeyAuth, trackAPICall, async (req, res) => {
     try {
         if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
 
