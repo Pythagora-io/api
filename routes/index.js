@@ -3,6 +3,10 @@ const router = express.Router();
 const User = require('../models/User.js')
 
 
+router.get('/ping', (req, res) => {
+    res.status(200).send('pong');
+});
+
 router.get('/', (req, res) => {
     res.status(200).json({username: req.user ? req.user.username : undefined});
 });
