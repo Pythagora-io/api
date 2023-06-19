@@ -46,7 +46,7 @@ router.post('/register', async (req, res) => {
             res.status(200).json({ message: 'Registration successful', apiKey: user.apiKey });
         });
     } catch (err) {
-        res.status(500).send('Error registering user: ', err);
+        res.status(500).send('Error registering user: ', JSON.stringify(err));
     }
 });
 
