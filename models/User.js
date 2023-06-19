@@ -12,6 +12,8 @@ const UserSchema = new mongoose.Schema({
     role: { type: String, enum: ['free', 'premium', 'enterprise'], default: 'free' },
     googleId: String,
     githubId: String
+}, {
+    timestamps: true,
 });
 
 UserSchema.methods.setRoleProperties = function () {

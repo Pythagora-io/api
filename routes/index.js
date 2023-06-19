@@ -33,8 +33,10 @@ router.post('/register', async (req, res) => {
         if (req.body.apiKey !== process.env.API_KEY) return res.status(403).send('Forbidden. Need to send apiKey inside body.');
 
         if (!req.body.username || !req.body.password || !req.body.email) return res.status(400).send('You need to provide username, password and email!');
+        let user = await User.findOne({ username: req.body.username, email: req.body.email, password: req.body.password });
+        if (user) return res.status(200).json({ message: 'Already registered.', apiKey: user.apiKey });
 
-        let user = new User({ username: req.body.username, password: req.body.password, email: req.body.email, role: req.body.role });
+        user = new User({ username: req.body.username, password: req.body.password, email: req.body.email, role: req.body.role });
         user.setRoleProperties();
         await user.save();
 
@@ -46,7 +48,7 @@ router.post('/register', async (req, res) => {
             res.status(200).json({ message: 'Registration successful', apiKey: user.apiKey });
         });
     } catch (err) {
-        res.status(500).send('Error registering user: ', JSON.stringify(err));
+        res.status(500).json({error: err});
     }
 });
 
