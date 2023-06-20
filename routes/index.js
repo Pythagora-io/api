@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User.js')
+const Telemetry = require('../models/Telemetry.js')
 
 
 router.get('/ping', (req, res) => {
@@ -49,6 +50,16 @@ router.post('/register', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({error: err});
+    }
+});
+
+router.post('/telemetry', async (req, res) => {
+    try {
+        const telemetryData = new Telemetry(req.body);
+        const savedTelemetryData = await telemetryData.save();
+        res.status(200).json(savedTelemetryData);
+    } catch (err) {
+        res.status(500).json({ error: err.toString() });
     }
 });
 
