@@ -75,8 +75,7 @@ router.post('/generate-unit-tests', apiKeyAuth, trackAPICall, async (req, res) =
     try {
         await getJestUnitTests(req, res);
     } catch (error) {
-        res.status(500).write('pythagora_end');
-        res.end(error.message);
+        res.status(500).end(error.message);
     }
 });
 
@@ -84,8 +83,7 @@ router.post('/generate-jest-auth', apiKeyAuth, trackAPICall, async (req, res) =>
     try {
         await getJestAuthFunction(req, res);
     } catch (error) {
-        res.status(500).write('pythagora_end');
-        res.end(error.message);
+        res.status(500).end(error.message);
     }
 });
 
@@ -93,8 +91,7 @@ router.post('/generate-jest-test', apiKeyAuth, trackAPICall, async (req, res) =>
     try {
         await getJestTestFromPythagoraData(req, res);
     } catch (error) {
-        res.status(500).write('pythagora_end');
-        res.end(error.message);
+        res.status(500).end(error.message);
     }
 });
 
@@ -104,8 +101,7 @@ router.post('/generate-jest-test-name', apiKeyAuth, trackAPICall, async (req, re
 
         await getJestTestName(req, res, []);
     } catch (error) {
-        res.status(500).write('pythagora_end');
-        res.end(error.message);
+        res.status(500).end(error.message);
     }
 });
 
