@@ -55,10 +55,15 @@ function fixImportsAndRequires(code, functionData) {
     return newCode;
 }
 
-function postprocessing() {
+function cleanupGPTResponse(gptResponse) {
+    if (gptResponse.substring(0, 3) === "```") {
+        gptResponse = gptResponse.substring(gptResponse.indexOf('\n') + 1, gptResponse.lastIndexOf('```'));
+    }
 
+    return gptResponse;
 }
 
 module.exports = {
-    fixImportsAndRequires
+    fixImportsAndRequires,
+    cleanupGPTResponse
 }

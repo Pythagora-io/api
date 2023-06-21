@@ -5,6 +5,7 @@ const GPT3Tokenizer = require("gpt3-tokenizer");
 const {insertVariablesInText} = require("../utils/common");
 const https = require("https");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
+const { fixImportsAndRequires, cleanupGPTResponse } = require("./postprocessing");
 const { Readable } = require('stream');
 const Handlebars = require('handlebars');
 
@@ -36,7 +37,7 @@ async function createGPTChatCompletion(messages, req, res, minTokens = MIN_TOKEN
     };
 
     try {
-        return await streamGPTCompletion(gptData, apiKey, res);
+        return await streamGPTCompletion(gptData, apiKey, res, req);
     } catch (e) {
         console.error('The request to OpenAI API failed. Might be due to GPT being down or due to the too large message. It\'s best if you try another export.');
         console.error(e);
@@ -44,6 +45,7 @@ async function createGPTChatCompletion(messages, req, res, minTokens = MIN_TOKEN
 }
 
 async function getJestTestFromPythagoraData(req, res) {
+    req.type = 'integrationTest';
     return await createGPTChatCompletion([
         {"role": "system", "content": "You are a QA engineer and your main goal is to find ways to break the application you're testing. You are proficient in writing automated integration tests for Node.js API servers.\n" +
                 "When you respond, you don't say anything except the code - no formatting, no explanation - only code.\n" },
@@ -54,19 +56,20 @@ async function getJestTestFromPythagoraData(req, res) {
     ], req, res);
 }
 
-async function getJestTestName(req, res, usedNames) {
+async function getJestTestName(req, res) {
+    req.type = 'integrationTestName';
     return await createGPTChatCompletion([
         {"role": "system", "content": "You are a QA engineer and your main goal is to think of good, human readable jest tests file names. You are proficient in writing automated integration tests for Node.js API servers.\n" +
                 "When you respond, you don't say anything except the filename - no formatting, no explanation, no code - only filename.\n" },
         {
             "role": "user",
-            "content": getPromptFromFile('generateJestTestName.txt', { test: req.body.test, usedNames }),
+            "content": getPromptFromFile('generateJestTestName.txt', req.body),
         },
-    ], req, res,200, true);
+    ], req, res,200);
 }
 
-function getGPTMessages(req, type) {
-    if (type === 'unit') {
+function getGPTMessages(req) {
+    if (req.type === 'unitTest') {
         return [
             {"role": "system", "content": "You are a QA engineer and your main goal is to find ways to break the application you're testing. You are proficient in writing automated tests for Node.js apps.\n" +
                     "When you respond, you don't say anything except the code - no formatting, no explanation - only code." },
@@ -79,14 +82,16 @@ function getGPTMessages(req, type) {
 }
 
 async function getJestUnitTests(req, res, usedNames) {
+    req.type = 'unitTest';
     req.body.relatedCode = req.body.relatedCode.map(code => {
         code.fileName = code.fileName.substring(code.fileName.lastIndexOf('/') + 1);
         return code;
     })
-    return await createGPTChatCompletion(getGPTMessages(req, 'unit'), req, res,200);
+    return await createGPTChatCompletion(getGPTMessages(req), req, res,200);
 }
 
 async function getJestAuthFunction(req, res) {
+    req.type = 'integrationAuthFn';
     let {loginMongoQueriesArray, loginRequestBody, loginEndpointPath} = req.body;
     let prompt = getPromptFromFile('generateJestAuth.txt', {
         loginRequestBody,
@@ -108,10 +113,14 @@ async function getJestAuthFunction(req, res) {
     ], req, res);
 }
 
-async function streamGPTCompletion(data, apiKey, response) {
+async function streamGPTCompletion(data, apiKey, response, req) {
+    let body = req.body,
+        type = req.type;
+
     data.stream = true;
 
     return new Promise((resolve, reject) => {
+        let gptResponse = '';
         const req = https.request(
             {
                 hostname: 'api.openai.com',
@@ -138,6 +147,7 @@ async function streamGPTCompletion(data, apiKey, response) {
                         receivedMessages.forEach(rm => {
                             let content = _.get(rm, 'choices.0.delta.content');
                             if (content) {
+                                gptResponse += content;
                                 response.write(content);
                                 process.stdout.write(content);
                             }
@@ -147,7 +157,8 @@ async function streamGPTCompletion(data, apiKey, response) {
                 });
 
                 resFromOpenAI.on('end', () => {
-                    response.end();
+                    const newCode = postprocessing(gptResponse, body, type);
+                    response.end(`pythagora_end:${newCode}`);
                 });
             }
         );
@@ -162,6 +173,15 @@ async function streamGPTCompletion(data, apiKey, response) {
         req.end();
     })
 }
+
+function postprocessing(code, functionData, type) {
+    let newCode = cleanupGPTResponse(code);
+
+    if (type === 'unitTest') newCode = fixImportsAndRequires(newCode, functionData);
+
+    return newCode;
+}
+
 function extractGPTMessageFromStreamData(input) {
     const regex = /data: (.*?)\n/g;
     const substrings = [];

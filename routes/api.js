@@ -99,7 +99,7 @@ router.post('/generate-jest-test-name', apiKeyAuth, trackAPICall, async (req, re
     try {
         if (!req.body || !req.body.test) return res.status(400).send('No "test" in body.');
 
-        await getJestTestName(req, res, []);
+        await getJestTestName(req, res);
     } catch (error) {
         res.status(500).end(error.message);
     }
