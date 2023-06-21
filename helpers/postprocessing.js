@@ -1,7 +1,7 @@
 function fixImportsAndRequires(code, functionData) {
     let functionLookup = {};
     functionData.relatedCode.forEach(func => {
-        func.functionNames.forEach(f => {
+        (func.functionNames || []).forEach(f => {
             functionLookup[f] = func.exportedAsObject;
         });
     });
@@ -31,7 +31,7 @@ function fixImportsAndRequires(code, functionData) {
 
     requireMatches.concat(importMatches).forEach((match) => {
         const functionName = match.importedElement.startsWith('{') ? match.importedElement.replace(/\{|\}/g, '').trim() : match.importedElement.trim();
-        const isExportedAsObject = functionLookup[functionName];
+        const isExportedAsObject = functionLookup[functionName] || false;
 
         let correctedStatement;
         if (functionData.isES6Syntax) {
