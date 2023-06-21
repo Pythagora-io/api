@@ -1,8 +1,8 @@
-I will give you the node.js code for a function `{{{functionName}}}` along with other functions that are related to it, and you need to write as many automated unit tests as you can think of in Jest for `{{{functionName}}}`.
+I will give you the node.js code for a function `{{{functionName}}}` along with other functions that are called from it, and you need to write as many automated unit tests as you can think of in Jest for `{{{functionName}}}`.
 
 {{#if classParent}}
 `{{{functionName}}}` is a method of a class `{{{classParent}}}` so, to require it, you need to initialize the class first. For example:
-```
+```javascript
     {{#if exportedAsObject}}
         {{#if isES6Syntax}}
 import { {{{classParent}}} } from '{{{pathRelativeToTest}}}';
@@ -36,7 +36,7 @@ When you need to require `{{{functionName}}}`, you can require it with `const {{
 {{/if}}
 
 Here are paths to each of the other files (in case you need to require them):
-```
+```javascript
 {{#each relatedCode}}
     {{#if ../isES6Syntax}}
 import ... from '{{{this.fileName}}}' -> import ... from '{{{this.pathRelativeToTest}}}';
