@@ -140,6 +140,7 @@ async function streamGPTCompletion(data, apiKey, response, req) {
                             let json = JSON.parse(stringified);
                             if (json.error || json.message) {
                                 response.write(JSON.stringify(json));
+                                gptResponse = json;
                                 return;
                             }
                         } catch (e) {}
@@ -157,6 +158,7 @@ async function streamGPTCompletion(data, apiKey, response, req) {
                 });
 
                 resFromOpenAI.on('end', () => {
+                    if (gptResponse.error || gptResponse.message) return response.end();
                     const newCode = postprocessing(gptResponse, body, type);
                     response.end(`pythagora_end:${newCode}`);
                 });
