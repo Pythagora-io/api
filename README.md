@@ -17,11 +17,13 @@ First install all npm dependencies
 npm install
 ```
 
-Then you are ready to start server
+Create `.env` using `.example.env` as an example and then you are ready to start server:
 
 ```bash
 node app.js
 ```
+<br>
+NOTE: you need to have MongoDB connection for server to run
 <br><br>
 <h1>▶️ Usage</h1>
 
