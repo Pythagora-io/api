@@ -1,5 +1,7 @@
 function fixImportsAndRequires(code, functionData) {
     let functionLookup = {};
+    functionLookup[functionData.functionName] = functionData.exportedAsObject;
+
     functionData.relatedCode.forEach(func => {
         (func.functionNames || []).forEach(f => {
             functionLookup[f] = func.exportedAsObject;
@@ -7,7 +9,7 @@ function fixImportsAndRequires(code, functionData) {
     });
 
     const importPattern = /(import\s+((\{\s*(\w+)\s*\})|(.*))\s+from\s+'(\..*)';?\n?)/g;
-    const requirePattern = /((var|const|let)\s+((\{\s*(\w+)\s*\})|(.*))\s+=\s+require\('(\..*)'\)(\.default)?;?\n?)/g;
+    const requirePattern = /((var|const|let)\s+((\{\s*(\w+)\s*\})|(.*))\s+=\s+require\('(\..*)'\)(\.default)?(\.\w+)?;?\n?)/g;
 
     let imports = '';
     let newCode = code;
