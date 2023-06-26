@@ -161,6 +161,7 @@ async function streamGPTCompletion(data, apiKey, response, req) {
                     if (gptResponse.error || gptResponse.message) return response.end();
                     const newCode = postprocessing(gptResponse, body, type);
                     response.end(`pythagora_end:${newCode}`);
+                    resolve();
                 });
             }
         );

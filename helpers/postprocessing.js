@@ -31,6 +31,8 @@ function fixImportsAndRequires(code, functionData) {
         }
     });
 
+    let importedFunctions = [];
+
     requireMatches.concat(importMatches).forEach((match) => {
         const functionName = match.importedElement.startsWith('{') ? match.importedElement.replace(/\{|\}/g, '').trim() : match.importedElement.trim();
         const isExportedAsObject = functionLookup[functionName] || false;
@@ -46,13 +48,14 @@ function fixImportsAndRequires(code, functionData) {
                 : `let ${functionName} = require('${match.path}');`;
         }
 
-        newCode = newCode.replace(match.fullStatement, '');
-        imports += correctedStatement + '\n';
+        if (!importedFunctions.includes(functionName)) {
+            newCode = newCode.replace(match.fullStatement, '');
+            imports += correctedStatement + '\n';
+            importedFunctions.push(functionName);
+        }
     });
 
-    if (functionData.isES6Syntax && !newCode.trim().startsWith('import')) {
-        newCode = imports + '\n' + newCode.trim();
-    }
+    newCode = imports + '\n' + newCode.trim();
 
     return newCode;
 }
