@@ -1,3 +1,5 @@
+const path = require('path');
+
 function fixImportsAndRequires(code, functionData) {
     let functionLookup = {};
     functionLookup[functionData.functionName] = functionData.exportedAsObject;
@@ -34,18 +36,20 @@ function fixImportsAndRequires(code, functionData) {
     let importedFunctions = [];
 
     requireMatches.concat(importMatches).forEach((match) => {
+        let parsedPath = path.parse(match.path);
+        let pathNoExtension = path.join(parsedPath.dir, parsedPath.name);
         const functionName = match.importedElement.startsWith('{') ? match.importedElement.replace(/\{|\}/g, '').trim() : match.importedElement.trim();
         const isExportedAsObject = functionLookup[functionName] || false;
 
         let correctedStatement;
         if (functionData.isES6Syntax) {
             correctedStatement = isExportedAsObject
-                ? `import { ${functionName} } from '${match.path}';`
-                : `import ${functionName} from '${match.path}';`;
+                ? `import { ${functionName} } from '${pathNoExtension}';`
+                : `import ${functionName} from '${pathNoExtension}';`;
         } else {
             correctedStatement = isExportedAsObject
-                ? `let { ${functionName} } = require('${match.path}');`
-                : `let ${functionName} = require('${match.path}');`;
+                ? `let { ${functionName} } = require('${pathNoExtension}');`
+                : `let ${functionName} = require('${pathNoExtension}');`;
         }
 
         if (!importedFunctions.includes(functionName)) {
