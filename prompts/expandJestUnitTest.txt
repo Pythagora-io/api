@@ -1,0 +1,44 @@
+I will give you the node.js code of an automated unit tests writen using Jest testing framework along with other functions that are called from it. You need to extend it with any new automated unit tests you may think of using Jest testing framework.
+
+Here is the code of the file `{{{testFileName}}}` with current tests:
+
+```javascript
+{{{testCode}}}
+```
+
+{{#if relatedCode.length}}
+As you can see `{{{testFileName}}}` use functions from other javascript files. You can find source code of that functions below
+{{/if}}
+
+Here are paths to each of the other files (in case you need to require them):
+```javascript
+{{#each importedFiles}}
+    {{#if ../isES6Syntax}}
+import ... from '{{{this.fileName}}}' -> import ... from '{{{this.pathRelativeToTest}}}';
+    {{else}}
+require('{{{this.fileName}}}') -> require('{{{this.pathRelativeToTest}}}');
+    {{/if}}
+{{/each}}
+```
+
+{{#each relatedCode}}
+Here is the source code of a function `{{{this.funcName}}}` which is placed inside `{{{this.fileName}}}`:
+```javascript
+{{{this.code}}}
+```
+{{/each}}
+
+{{#if relatedCode.length}}
+You should import/require all of that functions to resulting code.
+You don't need to use any of these functions, but only the ones that you think is usefull.
+{{/if}}
+
+Don't import any new functions inside resulting code except already imported ones.
+
+Please follow best practices of using Jest framework and check resulting code for mistakes.
+
+You need to generate as much new automated unit tests as you can.
+
+Please, make sure that each newly generated test case has logical and human readable name.
+
+Make sure to include existing code from `{{{testFileName}}}` to the file you generate.
