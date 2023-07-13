@@ -6,7 +6,8 @@ const {
     getJestTestName,
     getTokensInMessages,
     getPromptFromFile,
-    getJestUnitTests
+    getJestUnitTests,
+    getExpandedJestUnitTests
 } = require("../helpers/openai");
 const {trackAPICall} = require("../helpers/express");
 const {MIN_TOKENS_FOR_GPT_RESPONSE, MAX_GPT_MODEL_TOKENS} = require("../const/common");
@@ -74,6 +75,14 @@ router.post('/generate-negative-tests', apiKeyAuth, trackAPICall, async (req, re
 router.post('/generate-unit-tests', apiKeyAuth, trackAPICall, async (req, res) => {
     try {
         await getJestUnitTests(req, res);
+    } catch (error) {
+        res.status(500).end(error.message);
+    }
+});
+
+router.post('/expand-unit-tests', apiKeyAuth, trackAPICall, async (req, res) => {
+    try {
+        await getExpandedJestUnitTests(req, res);
     } catch (error) {
         res.status(500).end(error.message);
     }
