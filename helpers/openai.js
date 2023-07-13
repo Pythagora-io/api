@@ -81,7 +81,7 @@ function getGPTMessages(req) {
     } else if (req.type === 'expandUnitTest') {
         return [
             {"role": "system", "content": "You are a QA engineer and your main goal is to extend current automated unit tests in the application you're testing. You are proficient in writing automated tests for Node.js apps.\n" +
-                    "When you respond, you don't say anything except the code - no formatting, no explanation - only code." },
+                    "When you respond, you don't say anything except the code - no formatting, no explanation - only code. Do not include the codebase from the question" },
             { 
                 "role": "user",
                 "content": getPromptFromFile('expandJestUnitTest.txt', req.body),
@@ -99,7 +99,6 @@ async function getJestUnitTests(req, res, usedNames) {
     return await createGPTChatCompletion(getGPTMessages(req), req, res,200);
 }
 
-////////////////////////////////
 async function getExpandedJestUnitTests(req, res, usedNames) {
     req.type = 'expandUnitTest';
     req.body.relatedCode = req.body.relatedCode.map(code => {
